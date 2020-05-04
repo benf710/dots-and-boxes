@@ -9,49 +9,26 @@ class Game(object):
         self.spectators = []
         self.board = Board()
         self.started = False
+    
 
-    def __str__(self):
+    def to_dict(self):
         p1 = self.player1
         p2 = self.player2
         if not self.started:
-            game_status = 'Not Started'
+            return {'status': 'Waiting for another player to join.'}
         elif self.board.filled():
             winning_player = max(p1, p2, key=lambda player: player.score)
             game_status = f'Game over. Winner: {winning_player}'
         else:
             game_status = 'In progress'
-        status = json.dumps({'game': game_status, 'board': str(self.board), 'score': {p1.name: p1.score, p2.name: p2.score}, 'turn': p1.name if self.is_player1_turn else p2.name})
-        return status
+        return {'status': game_status, 'board': self.board.out(), 'score': {p1.name: p1.score, p2.name: p2.score}, 'turn': p1.name if self.is_player1_turn else p2.name}
+
+    def __str__(self):
+        return json.dumps(self.to_dict())
 
     def start_async(self):
         self.started = True
         self.is_player1_turn = True
-    
-    def start_sync(self):
-        self.started = True
-        self.is_player1_turn = True
-        print(self.board)
-        while not self.board.filled():
-            current_player = self.get_current_player()
-            x, y, vector = current_player.set_move(self.board)
-            completed_boxes = self.board.update(x, y, vector)
-            if completed_boxes == 0:
-                self.is_player1_turn = not self.is_player1_turn
-            else:
-                current_player.score += completed_boxes
-                print(f"{current_player} scored {completed_boxes} points!")
-            print(self.board)
-        winning_player = max(self.player1, self.player2, key=lambda player: player.score)
-        print(f'Game over.\n{winning_player} wins!\n\n{self.player1} Score: {self.player1.score}\n{self.player2} Score: {self.player2.score}')
-    
-    def get_current_player(self):
-        return self.player1 if self.is_player1_turn else self.player2
-
-    def ready_to_start(self):
-        if not self.started:
-            if self.player1 and self.player2:
-                return True
-        return False
     
     def make_move(self, player, move_obj):
         if (player == self.player1) == self.is_player1_turn:
@@ -59,17 +36,20 @@ class Game(object):
                 completed_boxes = self.board.update(move_obj['x'], move_obj['y'], move_obj['vector'])
                 if completed_boxes == 0:
                     self.is_player1_turn = not self.is_player1_turn
+                    status = {'status': 'success', 'message': f"You did not score any points."}
+                    
                 else:
                     if self.is_player1_turn:
                         self.player1.score += completed_boxes
                     else:
                         self.player2.score += completed_boxes
-                status = {'status': 'success', 'message': f"You scored {completed_boxes} points!"}
+                    status = {'status': 'success', 'message': f"You scored {completed_boxes} points! Move again."}
             else:
                 status = {'status': 'failed', 'message': f'{player.name}: Illegal move: {move_obj}'}
         else:
             status = {'status': 'failed', 'message': "Not your turn"}
         return status
+
 
 class Player(object):
     def __init__(self, name):
@@ -89,20 +69,6 @@ class Player(object):
             except AttributeError:
                 pass
         return False
-    
-    def set_move(self, board):
-        while True:
-            try:
-                move = input(f"{self.name}, enter a dot and vector ex. 0,0,x: ").split(',')
-                x, y, vector = move
-                x = int(x)
-                y = int(y)
-                if len(move) != 3: 
-                    raise ValueError("Move input did not consist of 3 values")
-                if board.legal_move(x, y, vector):
-                    return x, y, vector
-            except ValueError as e:
-                print(f"Invalid input: {move}. {e}")
 
 
 class Board(object):
@@ -124,23 +90,15 @@ class Board(object):
     
     def __str__(self):
         return str(self.board)
-
-    def printable(self):
-        output = ''
-        for y in self.board:
-            line1 = ''
-            line2 = ''
-            for x in y:
-                if x.x_vector:
-                    line1 += '. _ '
-                else:
-                    line1 += '.   '
-                if x.y_vector:
-                    line2 += '|   '
-                else:
-                    line2 += '    '
-            output += line1 + '\n' + line2 + '\n'
-        return output
+    
+    def out(self):
+        printable = []
+        for row in self.board:
+            y_list = []
+            for x in row:
+                y_list.append(x.out())
+            printable.append(y_list)
+        return printable
 
     def filled(self):
         for row in self.board:
@@ -217,31 +175,17 @@ class Dot(object):
         self.x_vector = x_vector
         self.y_vector = y_vector
     
+    def out(self):
+        return {'x': self.x, 'y': self.y, 'x_vector': self.x_vector, 'y_vector': self.y_vector}
+    
     def can_set_x(self):
-        if self.x_potential:
-            if self.x_vector:
-                raise ValueError(f"X vector already set for Dot at (x,y): {self.x},{self.y}.")
-            else:
-                return True
-        else:
-            raise ValueError(f"x_potential is False. X vector cannot be set for Dot at (x,y): {self.x},{self.y}.")
+        return True if self.x_potential and not self.x_vector else False
 
     def can_set_y(self):
-        if self.y_potential:
-            if self.y_vector:
-                raise ValueError(f"Y vector already set for Dot at (x,y): {self.x},{self.y}.")
-            else:
-                return True
-        else:
-            raise ValueError(f"y_potential is False. Y vector cannot be set for Dot at (x,y): {self.x},{self.y}")
+        return True if self.y_potential and not self.y_vector else False
 
     def __str__(self):
         return f"Dot({self.x}, {self.y},  x_potential={self.x_potential}, y_potential={self.y_potential}, x_vector={self.x_vector}, y_vector={self.y_vector})"
 
     def __repr__(self):
         return f"Dot({self.x}, {self.y},  x_potential={self.x_potential}, y_potential={self.y_potential}, x_vector={self.x_vector}, y_vector={self.y_vector})"
-
-
-if __name__ == '__main__':
-    game = Game()
-    game.start_sync()
