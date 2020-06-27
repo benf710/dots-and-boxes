@@ -6,10 +6,10 @@ class Game(object):
     def __init__(self, player1=None, player2=None):
         self.player1 = player1
         self.player2 = player2
+        self.is_player1_turn = None
         self.spectators = []
         self.board = Board()
         self.started = False
-    
 
     def to_dict(self):
         p1 = self.player1

@@ -2,9 +2,11 @@ import json
 import requests
 import time
 
+
 def get_all_games(server):
     result = json.loads(requests.get('http://' + server + '/api/all').text)
     return result
+
 
 def create_game(server, player):
     result = json.loads(requests.get('http://' + server + '/api/new', params={'player_name': player}).text)
@@ -12,11 +14,13 @@ def create_game(server, player):
         raise ValueError(f'Bad response: {result}')
     return result
 
+
 def join_game(server, room, player):
     result = json.loads(requests.get('http://' + server + f'/api/room/{room}/join/{player}').text)
     if result['status'] == 'failed':
         raise ValueError(f'Bad response: {result}')
     return result
+
 
 def get_game_status(server, room):
     result = json.loads(requests.get('http://' + server + f'/api/room/{room}/status').text)
@@ -24,11 +28,14 @@ def get_game_status(server, room):
         raise ValueError(f'Bad response: {result}')
     return result
 
+
 def move(server, room, player, move):
-    result = json.loads(requests.post('http://' + server + f'/api/room/{room}/move', json={'player': player, 'move': move}).text)
+    result = json.loads(
+        requests.post('http://' + server + f'/api/room/{room}/move', json={'player': player, 'move': move}).text)
     if result['status'] == 'failed':
         raise ValueError(f'Bad response: {result}')
     return result
+
 
 def print_board(board):
     output = ''
@@ -46,6 +53,7 @@ def print_board(board):
                 line2 += '    '
         output += line1 + '\n' + line2 + '\n'
     print(output)
+
 
 if __name__ == '__main__':
     server = '127.0.0.1:5000'

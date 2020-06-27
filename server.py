@@ -4,18 +4,21 @@ from game import Game, Player
 
 app = Flask(__name__)
 
-games = {} # {123: <Game object>,...}
+games = {}  # {123: <Game object>,...}
+
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html', games=list(games.keys()))
+    return render_template('base.html', games=get_all())
+
 
 @app.route('/api/all', methods=['GET'])
-def all():
+def get_all():
     output = {}
-    for id, game in games.items():
-        output[id] = game.to_dict()
+    for game_id, game in games.items():
+        output[game_id] = game.to_dict()
     return output
+
 
 @app.route('/api/new', methods=['GET'])
 def new_game():
@@ -26,6 +29,7 @@ def new_game():
     while room_id in games.keys():
         room_id = random.randrange(100000)
     return redirect(url_for('join_game', room_id=room_id, player_name=player_name))
+
 
 @app.route('/api/room/<int:room_id>/join/<player_name>', methods=['GET'])
 def join_game(room_id, player_name):
@@ -42,6 +46,7 @@ def join_game(room_id, player_name):
             return make_response({'status': 'failed', 'result': 'Two players already joined.'}, 400)
     return redirect(url_for('room_status', room_id=room_id))
 
+
 @app.route('/api/room/<int:room_id>/status', methods=['GET'])
 def room_status(room_id):
     game_lookup = games.get(room_id)
@@ -53,20 +58,23 @@ def room_status(room_id):
     response_obj.headers['Content-Type'] = 'application/json'
     return response_obj
 
+
 @app.route('/api/room/<int:room_id>/move', methods=['POST'])
 def room_move(room_id):
     game_lookup = games.get(room_id)
     data = request.json
     player_name = data.get('player')
-    move = data.get('move') # { 'x': 2, 'y': 3, 'vector': 'x'}
+    move = data.get('move')  # { 'x': 2, 'y': 3, 'vector': 'x'}
     if not game_lookup:
         return make_response({'status': 'failed', 'result': 'Game not initialized'}, 400)
     else:
         if not (player_name and move):
-            return make_response({'status': 'failed', 'result': f'Missing player or move parameter for object: {data}'}, 400)
+            return make_response({'status': 'failed', 'result': f'Missing player or move parameter for object: {data}'},
+                                 400)
         result = game_lookup.make_move(player_name, move)
         code = 400 if result['status'] == 'failed' else 200
         return make_response(result, code)
+
 
 if __name__ == '__main__':
     app.run()
