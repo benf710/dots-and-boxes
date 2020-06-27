@@ -9,7 +9,7 @@ games = {}  # {123: <Game object>,...}
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('base.html', games=get_all())
+    return render_template('base.html')
 
 
 @app.route('/api/all', methods=['GET'])
