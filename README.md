@@ -25,3 +25,5 @@ A REST API, Python Client, and JavaScript frontend for playing the children's ga
 
   ## TODO
    - Finish writting the JS frontend
+   - User Authentication
+   
