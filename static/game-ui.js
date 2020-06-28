@@ -29,6 +29,10 @@ function togglePlayerDiag() {
     pn_diag = document.getElementById("playername-diag");
     content = document.getElementById("maincontentdiv");
     if (pn_diag.style.display === "none") {
+        player_name = getCookie("player_name");
+        if (player_name){
+            document.getElementById("playernameinput").value = player_name;
+        }
         content.style.display = "none";
         pn_diag.style.display = "block";
     } else {
