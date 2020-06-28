@@ -42,9 +42,9 @@ class Game(object):
                         self.player1.score += completed_boxes
                     else:
                         self.player2.score += completed_boxes
-                    status = {'status': 'success', 'message': f"You scored {completed_boxes} points! Move again."}
+                    status = {'status': 'success', 'message': f"You scored {completed_boxes} points! You get to move again."}
             else:
-                status = {'status': 'failed', 'message': f'{player.name}: Illegal move: {move_obj}'}
+                status = {'status': 'failed', 'message': f'{player}: Illegal move: {move_obj}'}
         else:
             status = {'status': 'failed', 'message': "Not your turn"}
         return status
