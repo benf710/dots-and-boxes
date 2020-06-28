@@ -28,7 +28,7 @@
 <body onload="initializeUser();" class="d-flex flex-column h-100">
     <header>
         <nav class="navbar navbar-expand-md navbar-dark static-top bg-dark">
-            <a class="navbar-brand" href="#">Dots and Boxes</a>
+            <a class="navbar-brand" href="" onclick="toggleView('index-view');">Dots and Boxes</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
@@ -38,7 +38,7 @@
                         <button class="btn btn-success btn-sm" onclick="alert('create game');">New Game</button>
                     </li>
                     <li class="nav-item m-1">
-                        <button class="btn btn-secondary btn-sm" onclick="alert('list games');">List Games</button>
+                        <button class="btn btn-secondary btn-sm" onclick="getAllGames();">List Games</button>
                     </li>
                 </ul>
                 <button id="playername" class="btn btn-primary btn-sm m-1" onclick="togglePlayerDiag();">Player_name</button>
@@ -50,9 +50,16 @@
         <div class="container">
             <div id="maincontentdiv" class="container">
                 {% block content %}
-                <h1 class="mt-1">Dots and Boxes</h1>
-                <p class="lead">Game content and UI elements will go here. Still a work in progress.</p>
-                {% endblock %}
+                <div id="index-view">
+                    <h1 class="mt-1">Dots and Boxes</h1>
+                    <p class="lead">Welcome to dots and Boxes. Use the nav bar at the top to create a game or join one that has already been created.</p>
+                    <p class="lead">This is the frontend for an API which can be used to play this game. The purpose of this site was to create AI that you could play against.</p>
+                    {% endblock %}
+                </div>
+                <div id="list-games-view" style="display: none;">
+                    <ul id="games-list"></ul>
+                </div>
+                <div id="in-game-view" style="display: none;">TBD</div>
             </div>
             <div id="playername-diag" class="container" style="display: none;">
                 <div class="form-group">
