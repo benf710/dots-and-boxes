@@ -1,0 +1,47 @@
+<html>
+  <body>
+    <h1>Game Board Testing</h1>
+
+    <div id="game-box-example" class="container" style="position: absolute;">
+        <div height="110" width="110" class="container" style="float:left; position:relative; display: table;">
+            <svg height="20" width="20" id="dot">
+                <circle cx="10" cy="10" r="5" fill="black" />
+            </svg> 
+            <svg height="20" width="60" id="x-axis-set">
+                <polygon points="0,10 10,5 50,5 60,10 50,15 10,15" style="fill:black;" />
+            </svg>
+            <div style="clear:both;"></div>
+            <svg height="60" width="20" id="y-axis-not-set">
+                <polygon points="10,0 5,10 5,50 10,60 15,50 15,10" style="fill:lightgrey;" />
+            </svg>
+        </div>
+        
+        <div height="110" width="110" class="container" style="float:left; position:relative; display: table;">
+            <svg height="20" width="20">
+                <circle cx="10" cy="10" r="5" fill="black" />
+            </svg> 
+            <div style="clear:both;"></div>
+            <svg height="60" width="20" id="y-axis-set">
+                <polygon points="10,0 5,10 5,50 10,60 15,50 15,10" style="fill:black;" />
+            </svg>
+        </div>
+
+        <div style="clear:both;" id="linebreaker"></div>
+
+        <div height="110" width="110" class="container" style="float:left; position:relative; display: table;">
+            <svg height="20" width="20">
+                <circle cx="10" cy="10" r="5" fill="black" />
+            </svg> 
+            <svg height="20" width="60" id="x-axis-not-set">
+                <polygon points="0,10 10,5 50,5 60,10 50,15 10,15" style="fill:lightgrey;" />
+            </svg>
+        </div>
+
+        <div height="110" width="110" class="container" style="float:left; position:relative; display: table;">
+            <svg height="20" width="20">
+                <circle cx="10" cy="10" r="5" fill="black" />
+            </svg> 
+        </div>
+    </div>
+  </body>
+</html>
