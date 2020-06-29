@@ -8,7 +8,7 @@ class Game():
         self.player = player_name
         if game_id:
             self.game_id = game_id
-            self.status = self.join_game()
+            self.status = self.join_game() # If two players already joined and self.player_name is one of them, continue
         else:
             self.game_id = self.create_game()
 
