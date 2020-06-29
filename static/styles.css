@@ -1,12 +1,17 @@
 main > .container {
     padding: 60px 15px 0;
   }
-  
-  .footer {
-    background-color: #f5f5f5;
+  polygon.set {
+    fill: black;
   }
-  
-  .footer > .container {
-    padding-right: 15px;
-    padding-left: 15px;
+  polygon.not-set {
+    fill: lightgrey;
+  }
+  polygon.hover {
+    fill: grey;
+  }
+  .unstyled-button {
+    border: none;
+    padding: 0;
+    background: none;
   }
