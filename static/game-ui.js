@@ -1,4 +1,3 @@
-
 function getCookie(name) {
     var value = "; " + document.cookie;
     var parts = value.split("; " + name + "=");
@@ -109,7 +108,7 @@ function toggleView(view) {
     document.getElementById(view).style.display = "block";
   }
 
-  function createGame(){
+function createGame(){
     request = new XMLHttpRequest();
     request.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -117,15 +116,102 @@ function toggleView(view) {
             if (result["status"] == "success"){
                 viewGame(result["room"]);
             } else {
-
+                document.getElementById("in-game-view-message-error").innerHTML = 'Invalid response from server.';
+                toggleView("in-game-view");
             }
         }
     }
     request.open("GET", "/api/new?player_name=" + getCookie("player_name"), true);
     request.send();
-  }
+}
 
-  function viewGame(game_id){
-    request = new XMLHttpRequest();
-    toggleView("in-game-view");
-  }
+var sleep = time => new Promise(resolve => setTimeout(resolve, time));
+var poll = (promiseFn, time) => promiseFn().then(sleep(time).then(() => poll(promiseFn, time)))
+
+function viewGame(game_id){ // Validate input
+
+    function doUpdate(game_id){
+        request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("in-game-view-title").innerHTML = "Game: " + game_id;
+                result = JSON.parse(request.response);
+                if (result["status"] == "success"){
+                    document.getElementById("in-game-view-message-status").innerHTML = result["result"]["status"];
+                    if (result["result"]["status"] != "Waiting for another player to join."){
+                        turn = result["result"]["turn"];
+                        if (turn == getCookie("player_name")){
+                            window.is_your_turn = true;
+                        } else {
+                            window.is_your_turn = false;
+                        }
+                        document.getElementById("in-game-view-message-turn").innerHTML = "Turn: " + turn;
+                        scores = result["result"]["score"];
+                        player_names = Object.keys(scores);
+                        scores_text = player_names[0] + ': ' + scores[player_names[0]] + ', ' + player_names[1] + ': ' + scores[player_names[1]];
+                        document.getElementById("in-game-view-message-score").innerHTML = scores_text;
+                        updateBoard(result["result"]["board"]);
+                    }
+                }
+            }
+        }
+        toggleView("in-game-view");
+        request.open("GET", "/api/room/" + game_id + "/status", true)
+        request.send();
+    }
+    poll(() => new Promise(() => doUpdate(game_id)), 5000);
+}
+
+function updateBoard(boardArray){
+    xmax = 1;
+    ymax = 1;
+    boardArray.forEach(function(row){
+        row.forEach(function(dot){
+            if (dot['x'] < xmax){
+                x_id = 'x' + dot['x'] + 'y' + dot['y'] + 'x';
+                if (dot['x_vector']){
+                    alreadySet(x_id);
+                }
+            }
+            if (dot['y'] < ymax){
+                y_id = 'x' + dot['x'] + 'y' + dot['y'] + 'y';
+                if (dot['y_vector']){
+                    alreadySet(y_id);
+                }
+            }
+        })
+    })
+}
+
+function alreadySet(buttonId){
+    abutton = document.getElementById(buttonId);
+    img = abutton.getElementsByClassName("poly")[0];
+    img.classList.add("set");
+    img.classList.remove("hover");
+    img.classList.remove("not-set");
+}
+
+function setClicked(abutton){
+    img = abutton.getElementsByClassName("poly")[0];
+    if (!img.classList.contains("set") && window.is_your_turn){
+        img.classList.add("set");
+        img.classList.remove("hover");
+        img.classList.remove("not-set");
+    }
+}
+
+function setMouseOver(abutton){
+    img = abutton.getElementsByClassName("poly")[0];
+    if (!img.classList.contains("set") && window.is_your_turn){
+        img.classList.add("hover");
+        img.classList.remove("not-set");
+    }
+}
+
+function setMouseOut(abutton){
+    img = abutton.getElementsByClassName("poly")[0];
+    if (!img.classList.contains("set") && window.is_your_turn){
+        img.classList.remove("hover");
+        img.classList.add("not-set");
+    }
+}
